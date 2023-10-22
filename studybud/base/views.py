@@ -1,11 +1,11 @@
 from django.shortcuts import render
 from .models import Room
 
-rooms = [
+""" rooms = [
     {'id': 1, 'name': "Let's learn python"},
     {'id': 2, 'name': "Design with me"},
     {'id': 3, 'name': "Developers"},
-]
+] """
 
 # Create your views here.
 
