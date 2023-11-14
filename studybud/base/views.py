@@ -7,7 +7,7 @@ from django.contrib import messages
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth.forms import UserCreationForm
 from .models import Room, Topic, Message
-from .forms import RoomForm
+from .forms import RoomForm, UserForm
 
 """ rooms = [
     {'id': 1, 'name': "Let's learn python"},
@@ -75,13 +75,13 @@ def home(request):
         Q(name__icontains=q) |
         Q(description__icontains=q)
     )
-
-    topics = Topic.objects.all()
+    total_topics_count = Topic.objects.all().count()
+    topics = Topic.objects.all()[0:5]
     room_count = rooms.count()
     room_messages = Message.objects.filter(Q(room__topic__name__icontains=q))
 
     context = {'rooms': rooms, 'topics': topics,
-               'room_count': room_count, 'room_messages': room_messages}
+               'room_count': room_count, 'room_messages': room_messages, 'total_topics_count': total_topics_count}
     return render(request, 'base/home.html', context)
 
 
@@ -179,3 +179,28 @@ def deleteMessage(request, pk):
         message.delete()
         return redirect('home')
     return render(request, 'base/delete.html', {'obj': message})
+
+
+@login_required(login_url='login')
+def updateUser(request):
+    user = request.user
+    form = UserForm(instance=user)
+
+    if request.method == 'POST':
+        form = UserForm(request.POST, instance=user)
+        if form.is_valid():
+            form.save()
+            return redirect('user-profile', pk=user.id)
+
+    return render(request, 'base/update-user.html', {'form': form})
+
+
+def topicsPage(request):
+    q = request.GET.get('q') if request.GET.get('q') != None else ''
+    topics = Topic.objects.filter(name__icontains=q)
+    total_topics_count = Topic.objects.all().count()
+    return render(request, 'base/topics.html', {'topics': topics, 'total_topics_count': total_topics_count})
+
+def activityPage(request):
+    room_messages = Message.objects.all()
+    return render(request, 'base/activity.html', {'room_messages': room_messages})
