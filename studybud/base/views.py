@@ -105,12 +105,13 @@ def room(request, pk):
 
 
 def userProfile(request, pk):
+    total_topics_count = Topic.objects.all().count()
     user = User.objects.get(id=pk)
     rooms = user.room_set.all()
     room_messages = user.message_set.all()
     topics = Topic.objects.all()
     context = {'user': user, 'rooms': rooms,
-               'room_messages': room_messages, 'topics': topics}
+               'room_messages': room_messages, 'topics': topics, 'total_topics_count': total_topics_count}
     return render(request, 'base/profile.html', context)
 
 
